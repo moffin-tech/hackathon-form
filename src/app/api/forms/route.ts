@@ -9,7 +9,10 @@ export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
     console.log("GET /api/forms - Session:", session);
-    console.log("GET /api/forms - All headers:", Object.fromEntries(request.headers.entries()));
+    console.log(
+      "GET /api/forms - All headers:",
+      Object.fromEntries(request.headers.entries())
+    );
 
     // If no NextAuth session, try to get token from Authorization header
     if (!session?.user) {
