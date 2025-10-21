@@ -5,6 +5,7 @@ import clientPromise, { getDatabase } from "./mongodb";
 import bcrypt from "bcryptjs";
 
 export const authOptions: NextAuthOptions = {
+  secret: process.env.NEXTAUTH_SECRET || "fallback-secret-for-development",
   adapter: MongoDBAdapter(clientPromise),
   providers: [
     CredentialsProvider({

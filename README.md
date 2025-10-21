@@ -49,11 +49,16 @@ Una plataforma completa de formularios dinámicos e inteligentes que implementa 
 2. Selecciona tu sitio → **Site settings** → **Environment variables**
 3. Agrega estas variables (exactamente como se muestran):
 
-```
-MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/hackathon-forms?retryWrites=true&w=majority
-NEXTAUTH_SECRET=your-secret-key-here
-NEXTAUTH_URL=https://tu-sitio.netlify.app
-```
+        ```
+        MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/hackathon-forms?retryWrites=true&w=majority
+        NEXTAUTH_SECRET=your-secret-key-here-32-characters-minimum
+        NEXTAUTH_URL=https://tu-sitio.netlify.app
+        ```
+
+        **⚠️ IMPORTANTE**: `NEXTAUTH_SECRET` debe ser una cadena de al menos 32 caracteres. Puedes generar una con:
+        ```bash
+        openssl rand -base64 32
+        ```
 
 **Reemplaza:**
 
