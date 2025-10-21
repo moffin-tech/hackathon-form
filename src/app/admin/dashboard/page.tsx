@@ -69,7 +69,7 @@ export default function DashboardPage() {
       const token = localStorage.getItem("accessToken");
       const response = await fetch("/api/forms", {
         headers: {
-          "Authorization": `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
       });
@@ -94,7 +94,7 @@ export default function DashboardPage() {
       const response = await fetch(`/api/forms/delete/${formId}`, {
         method: "DELETE",
         headers: {
-          "Authorization": `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
       });
