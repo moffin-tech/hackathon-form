@@ -43,16 +43,22 @@ Una plataforma completa de formularios dinámicos e inteligentes que implementa 
 
 ### Variables de Entorno Requeridas
 
-Para hacer deploy en Netlify, necesitas configurar estas variables de entorno en tu dashboard de Netlify:
+⚠️ **IMPORTANTE**: Debes configurar estas variables en Netlify ANTES del deploy:
 
-1. Ve a **Site settings** → **Environment variables**
-2. Agrega las siguientes variables:
+1. Ve a tu dashboard de Netlify
+2. Selecciona tu sitio → **Site settings** → **Environment variables**
+3. Agrega estas variables (exactamente como se muestran):
 
 ```
 MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/hackathon-forms?retryWrites=true&w=majority
 NEXTAUTH_SECRET=your-secret-key-here
 NEXTAUTH_URL=https://tu-sitio.netlify.app
 ```
+
+**Reemplaza:**
+- `username:password` con tus credenciales de MongoDB Atlas
+- `your-secret-key-here` con una clave secreta de 32+ caracteres
+- `tu-sitio.netlify.app` con tu URL real de Netlify
 
 ### Configuración Automática
 
