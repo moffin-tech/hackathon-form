@@ -11,6 +11,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/Card";
+import toast from "react-hot-toast";
+import { useRouter } from "next/navigation";
 
 interface FormBuilderProps {
   formData: Partial<FormTemplate>;
@@ -18,11 +20,13 @@ interface FormBuilderProps {
 }
 
 export function FormBuilder({ formData, onUpdate }: FormBuilderProps) {
+  const router = useRouter();
   const [selectedSection, setSelectedSection] = useState<number | null>(null);
   const [selectedField, setSelectedField] = useState<{
     sectionIndex: number;
     fieldIndex: number;
   } | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
 
   const addSection = () => {
     const newSection: FormSection = {
@@ -102,6 +106,51 @@ export function FormBuilder({ formData, onUpdate }: FormBuilderProps) {
     { value: "checkbox", label: "Checkbox" },
     { value: "file", label: "Archivo" },
   ];
+
+  const saveForm = async () => {
+    if (!formData.title || !formData.description || !formData.sections || formData.sections.length === 0) {
+      toast.error("Por favor completa el título, descripción y al menos una sección");
+      return;
+    }
+
+    setIsSaving(true);
+    try {
+      const response = await fetch("/api/forms", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          title: formData.title,
+          description: formData.description,
+          sections: formData.sections,
+          settings: formData.settings || {
+            allowMultiSession: true,
+            allowEdit: true,
+            autoSave: true,
+            showProgress: true,
+            requireAuth: false,
+          },
+          isPublic: formData.isPublic || false,
+          tags: formData.tags || [],
+          permissions: formData.permissions || {},
+        }),
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        toast.success("Formulario creado exitosamente");
+        router.push(`/forms/${result.slug}`);
+      } else {
+        const error = await response.json();
+        toast.error(error.error || "Error al crear formulario");
+      }
+    } catch (error) {
+      toast.error("Error al crear formulario");
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -403,6 +452,32 @@ export function FormBuilder({ formData, onUpdate }: FormBuilderProps) {
           )}
         </CardContent>
       </Card>
+
+      {/* Save Button */}
+      <div className="flex justify-end">
+        <Button 
+          onClick={saveForm} 
+          disabled={isSaving}
+          className="px-8"
+        >
+          {isSaving ? (
+            <>
+              <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              Guardando...
+            </>
+          ) : (
+            <>
+              <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              </svg>
+              Crear Formulario
+            </>
+          )}
+        </Button>
+      </div>
     </div>
   );
 }

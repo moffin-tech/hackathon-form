@@ -16,6 +16,8 @@ import { useImpersonation } from "@/hooks/useImpersonation";
 import { useAppSelector, useAppDispatch } from "@/redux/hooks";
 import { fetchGetUser } from "@/redux/features/authenticationSlice";
 import { RootState } from "@/redux/store";
+import { FormTemplate } from "@/types/auth";
+import toast from "react-hot-toast";
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -28,6 +30,7 @@ export default function DashboardPage() {
   } = useAppSelector((store: RootState) => store.authentication);
   const { getEffectiveUserId } = useImpersonation();
   const [isLoading, setIsLoading] = useState(true);
+  const [forms, setForms] = useState<FormTemplate[]>([]);
 
   useEffect(() => {
     // Check if user is authenticated
@@ -45,6 +48,13 @@ export default function DashboardPage() {
     }
   }, [dispatch, router, user]);
 
+  // Load forms when user is available
+  useEffect(() => {
+    if (user && !authLoading) {
+      loadForms();
+    }
+  }, [user, authLoading]);
+
   // Handle API errors - redirect to login
   useEffect(() => {
     if (authError && !authLoading) {
@@ -53,6 +63,41 @@ export default function DashboardPage() {
       router.push("/admin/login");
     }
   }, [authError, authLoading, router]);
+
+  const loadForms = async () => {
+    try {
+      const response = await fetch("/api/forms");
+      if (response.ok) {
+        const data = await response.json();
+        setForms(data.forms || []);
+      } else {
+        toast.error("Error al cargar formularios");
+      }
+    } catch (error) {
+      toast.error("Error al cargar formularios");
+    }
+  };
+
+  const deleteForm = async (formId: string) => {
+    if (!confirm("¿Estás seguro de que quieres eliminar este formulario?")) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/forms/${formId}`, {
+        method: "DELETE",
+      });
+
+      if (response.ok) {
+        setForms(forms.filter(form => form._id !== formId));
+        toast.success("Formulario eliminado");
+      } else {
+        toast.error("Error al eliminar formulario");
+      }
+    } catch (error) {
+      toast.error("Error al eliminar formulario");
+    }
+  };
 
   if (authLoading || isLoading) {
     return (
@@ -153,6 +198,197 @@ export default function DashboardPage() {
             </div>
           </div>
         </div>
+
+        {/* Stats */}
+        <div className="grid md:grid-cols-3 gap-6 mb-8">
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">
+                Total Formularios
+              </CardTitle>
+              <svg
+                className="h-4 w-4 text-muted-foreground"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                />
+              </svg>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{forms.length}</div>
+              <p className="text-xs text-muted-foreground">
+                Formularios creados
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">
+                Formularios Públicos
+              </CardTitle>
+              <svg
+                className="h-4 w-4 text-muted-foreground"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M13 10V3L4 14h7v7l9-11h-7z"
+                />
+              </svg>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">
+                {forms.filter((f) => f.isPublic).length}
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Disponibles públicamente
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">
+                Último Formulario
+              </CardTitle>
+              <svg
+                className="h-4 w-4 text-muted-foreground"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                />
+              </svg>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">
+                {forms.length > 0
+                  ? new Date(forms[0].createdAt).toLocaleDateString()
+                  : "N/A"}
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Fecha de creación
+              </p>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Forms List */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Mis Formularios</CardTitle>
+            <CardDescription>
+              Gestiona tus formularios creados
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            {forms.length === 0 ? (
+              <div className="text-center py-8">
+                <svg
+                  className="mx-auto h-12 w-12 text-gray-400"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                  />
+                </svg>
+                <h3 className="mt-2 text-sm font-medium text-gray-900">
+                  No hay formularios
+                </h3>
+                <p className="mt-1 text-sm text-gray-500">
+                  Comienza creando tu primer formulario.
+                </p>
+                <div className="mt-6">
+                  <Link href="/">
+                    <Button>
+                      <svg
+                        className="w-4 h-4 mr-2"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M12 4v16m8-8H4"
+                        />
+                      </svg>
+                      Crear Formulario
+                    </Button>
+                  </Link>
+                </div>
+              </div>
+            ) : (
+              <div className="grid gap-4">
+                {forms.map((form) => (
+                  <div
+                    key={form._id}
+                    className="border rounded-lg p-4 hover:bg-gray-50 transition-colors"
+                  >
+                    <div className="flex justify-between items-start">
+                      <div className="flex-1">
+                        <h3 className="text-lg font-medium">{form.title}</h3>
+                        <p className="text-sm text-gray-600 mt-1">
+                          {form.description}
+                        </p>
+                        <div className="flex items-center space-x-4 mt-2 text-xs text-gray-500">
+                          <span>{form.sections.length} secciones</span>
+                          <span>{form.isPublic ? "Público" : "Privado"}</span>
+                          <span>
+                            Creado:{" "}
+                            {new Date(form.createdAt).toLocaleDateString()}
+                          </span>
+                        </div>
+                        <div className="mt-2">
+                          <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">
+                            /forms/{form.slug}
+                          </span>
+                        </div>
+                      </div>
+                      <div className="flex space-x-2">
+                        <Link href={`/forms/${form.slug}`} target="_blank">
+                          <Button variant="outline" size="sm">
+                            Ver
+                          </Button>
+                        </Link>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => deleteForm(form._id)}
+                          className="text-red-600 hover:text-red-700"
+                        >
+                          Eliminar
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
       </div>
     </div>
   );

@@ -1,35 +1,39 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "next-auth/next";
+import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { getDatabase } from "@/lib/mongodb";
+import { FormTemplate } from "@/types/auth";
 
 export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-
-    if (!session) {
-      return NextResponse.json({ message: "No autorizado" }, { status: 401 });
+    if (!session?.user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // Get the effective user ID (either real user or impersonated user)
+    const db = await getDatabase();
     const effectiveUserId = session.user.isImpersonating
       ? session.user.impersonatedUserId
       : session.user.id;
 
-    const db = await getDatabase();
+    // Get organization from user info
+    const user = await db.collection("users").findOne({ _id: effectiveUserId });
+    if (!user) {
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
+    }
+
+    // Get forms by organization
     const forms = await db
       .collection("forms")
-      .find({
-        createdBy: effectiveUserId,
-      })
+      .find({ organizationId: user.organizationId })
       .sort({ createdAt: -1 })
       .toArray();
 
-    return NextResponse.json(forms);
+    return NextResponse.json({ forms });
   } catch (error) {
     console.error("Error fetching forms:", error);
     return NextResponse.json(
-      { message: "Error interno del servidor" },
+      { error: "Internal server error" },
       { status: 500 }
     );
   }
@@ -38,47 +42,58 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-
-    if (!session) {
-      return NextResponse.json({ message: "No autorizado" }, { status: 401 });
+    if (!session?.user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // Get the effective user ID (either real user or impersonated user)
+    const db = await getDatabase();
     const effectiveUserId = session.user.isImpersonating
       ? session.user.impersonatedUserId
       : session.user.id;
 
-    const formData = await request.json();
-
-    if (
-      !formData.title ||
-      !formData.sections ||
-      formData.sections.length === 0
-    ) {
-      return NextResponse.json(
-        { message: "Título y al menos una sección son requeridos" },
-        { status: 400 }
-      );
+    // Get user and organization info
+    const user = await db.collection("users").findOne({ _id: effectiveUserId });
+    if (!user) {
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    const db = await getDatabase();
+    const formData: Omit<FormTemplate, "_id" | "createdAt" | "updatedAt"> =
+      await request.json();
+
+    // Generate unique slug
+    const baseSlug = formData.title
+      .toLowerCase()
+      .replace(/[^a-z0-9\s-]/g, "")
+      .replace(/\s+/g, "-")
+      .trim();
+    
+    let slug = baseSlug;
+    let counter = 1;
+    
+    // Ensure slug is unique
+    while (await db.collection("forms").findOne({ slug })) {
+      slug = `${baseSlug}-${counter}`;
+      counter++;
+    }
 
     const form = await db.collection("forms").insertOne({
       ...formData,
+      slug,
+      organizationId: user.organizationId,
       createdBy: effectiveUserId,
       createdAt: new Date(),
       updatedAt: new Date(),
     });
 
-    const createdForm = await db.collection("forms").findOne({
-      _id: form.insertedId,
+    return NextResponse.json({
+      success: true,
+      formId: form.insertedId,
+      slug,
     });
-
-    return NextResponse.json(createdForm, { status: 201 });
   } catch (error) {
     console.error("Error creating form:", error);
     return NextResponse.json(
-      { message: "Error interno del servidor" },
+      { error: "Internal server error" },
       { status: 500 }
     );
   }
