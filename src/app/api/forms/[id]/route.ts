@@ -6,14 +6,15 @@ import { ObjectId } from "mongodb";
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const db = await getDatabase();
 
     // Try to find public form first
     let form = await db.collection("forms").findOne({
-      _id: new ObjectId(params.id),
+      _id: new ObjectId(id),
       isPublic: true,
     });
 
@@ -26,7 +27,7 @@ export async function GET(
       }
 
       form = await db.collection("forms").findOne({
-        _id: new ObjectId(params.id),
+        _id: new ObjectId(id),
         createdBy: session.user.id,
       });
     }
@@ -50,9 +51,10 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await getServerSession(authOptions);
 
     if (!session) {
@@ -64,7 +66,7 @@ export async function PUT(
 
     // Check if user owns the form
     const existingForm = await db.collection("forms").findOne({
-      _id: new ObjectId(params.id),
+      _id: new ObjectId(id),
       createdBy: session.user.id,
     });
 
@@ -76,7 +78,7 @@ export async function PUT(
     }
 
     const updatedForm = await db.collection("forms").findOneAndUpdate(
-      { _id: new ObjectId(params.id) },
+      { _id: new ObjectId(id) },
       {
         $set: {
           ...formData,
@@ -98,9 +100,10 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await getServerSession(authOptions);
 
     if (!session) {
@@ -111,7 +114,7 @@ export async function DELETE(
 
     // Check if user owns the form
     const existingForm = await db.collection("forms").findOne({
-      _id: new ObjectId(params.id),
+      _id: new ObjectId(id),
       createdBy: session.user.id,
     });
 
@@ -123,7 +126,7 @@ export async function DELETE(
     }
 
     await db.collection("forms").deleteOne({
-      _id: new ObjectId(params.id),
+      _id: new ObjectId(id),
     });
 
     return NextResponse.json({ message: "Formulario eliminado exitosamente" });

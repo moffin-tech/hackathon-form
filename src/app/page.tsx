@@ -26,6 +26,24 @@ export default function HomePage() {
   } = useAppSelector((store: any) => store.authentication);
   const { getEffectiveUserId } = useImpersonation();
   const [isLoading, setIsLoading] = useState(true);
+  const [formData, setFormData] = useState({
+    title: "",
+    description: "",
+    sections: [],
+    settings: {
+      allowMultiSession: true,
+      allowEdit: true,
+      autoSave: true,
+      showProgress: true,
+      requireAuth: false,
+    },
+    isPublic: false,
+    tags: [],
+  });
+
+  const handleFormUpdate = (updates: any) => {
+    setFormData(prev => ({ ...prev, ...updates }));
+  };
 
   useEffect(() => {
     // Check if user is authenticated
@@ -122,7 +140,10 @@ export default function HomePage() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <FormBuilder />
+            <FormBuilder 
+              formData={formData} 
+              onUpdate={handleFormUpdate} 
+            />
           </CardContent>
         </Card>
       </div>

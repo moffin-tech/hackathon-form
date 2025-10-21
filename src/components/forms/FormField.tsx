@@ -130,7 +130,7 @@ export function FormField({
     setLocalError(validationError);
   };
 
-  const displayError = error || localError;
+  const displayError = error || localError || undefined;
 
   // Render different field types
   const renderField = () => {

@@ -458,6 +458,7 @@ export const employeeOnboardingForm: FormConfig = {
           id: "prestaciones",
           type: "multiselect",
           label: "Prestaciones deseadas",
+          required: false,
           options: [
             { value: "seguro_medico", label: "Seguro médico" },
             { value: "vales_despensa", label: "Vales de despensa" },

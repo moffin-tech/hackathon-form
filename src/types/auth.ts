@@ -99,11 +99,11 @@ export interface FormField {
 }
 
 export interface FormSettings {
-  allowMultiSession: boolean;
-  allowEdit: boolean;
-  autoSave: boolean;
-  showProgress: boolean;
-  requireAuth: boolean;
+  allowMultiSession?: boolean;
+  allowEdit?: boolean;
+  autoSave?: boolean;
+  showProgress?: boolean;
+  requireAuth?: boolean;
   theme?: {
     primaryColor: string;
     secondaryColor: string;
