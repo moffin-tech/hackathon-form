@@ -66,7 +66,13 @@ export default function DashboardPage() {
 
   const loadForms = async () => {
     try {
-      const response = await fetch("/api/forms");
+      const token = localStorage.getItem("accessToken");
+      const response = await fetch("/api/forms", {
+        headers: {
+          "Authorization": `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
       if (response.ok) {
         const data = await response.json();
         setForms(data.forms || []);
@@ -84,8 +90,13 @@ export default function DashboardPage() {
     }
 
     try {
+      const token = localStorage.getItem("accessToken");
       const response = await fetch(`/api/forms/delete/${formId}`, {
         method: "DELETE",
+        headers: {
+          "Authorization": `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
       });
 
       if (response.ok) {

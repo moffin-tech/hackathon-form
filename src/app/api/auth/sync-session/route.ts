@@ -64,6 +64,8 @@ export async function POST(request: NextRequest) {
       sessionToken: token,
       userId: userRecord._id,
       expires: sessionData.expires,
+      createdAt: new Date(),
+      updatedAt: new Date(),
     });
 
     return NextResponse.json({
