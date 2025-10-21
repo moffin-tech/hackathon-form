@@ -22,9 +22,11 @@ import { RootState } from "@/redux/store";
 export default function DashboardPage() {
   const router = useRouter();
   const dispatch = useAppDispatch();
-  const { user, isLoading: authLoading, error: authError } = useAppSelector(
-    (store: RootState) => store.authentication
-  );
+  const {
+    user,
+    isLoading: authLoading,
+    error: authError,
+  } = useAppSelector((store: RootState) => store.authentication);
   const { getEffectiveUserId } = useImpersonation();
   const [forms, setForms] = useState<FormTemplate[]>([]);
   const [organizations, setOrganizations] = useState<
