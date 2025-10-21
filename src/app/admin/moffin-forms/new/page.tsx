@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
@@ -13,12 +12,19 @@ import {
   CardTitle,
 } from "@/components/ui/Card";
 import toast from "react-hot-toast";
+import { useAppSelector, useAppDispatch } from "@/redux/hooks";
+import { fetchGetUser } from "@/redux/features/authenticationSlice";
+import { RootState } from "@/redux/store";
 
 export default function NewMoffinFormPage() {
-  const { data: session } = useSession();
   const router = useRouter();
-  const [organizations, setOrganizations] = useState<any[]>([]);
-  const [selectedOrganization, setSelectedOrganization] = useState<string>("");
+  const dispatch = useAppDispatch();
+  const {
+    user,
+    organization,
+    isLoading: authLoading,
+    error: authError,
+  } = useAppSelector((store: RootState) => store.authentication);
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
@@ -38,28 +44,32 @@ export default function NewMoffinFormPage() {
   });
 
   useEffect(() => {
-    fetchOrganizations();
-  }, []);
-
-  const fetchOrganizations = async () => {
-    try {
-      const response = await fetch("/api/organizations");
-      if (response.ok) {
-        const data = await response.json();
-        setOrganizations(data);
-        if (data.length > 0) {
-          setSelectedOrganization(data[0]._id);
-        }
-      }
-    } catch (error) {
-      toast.error("Error al cargar organizaciones");
+    // Check if user is authenticated
+    const token = localStorage.getItem("accessToken");
+    if (!token) {
+      router.push("/admin/login");
+      return;
     }
-  };
+
+    // Fetch user data if not already loaded
+    if (!user && token) {
+      dispatch(fetchGetUser());
+    }
+  }, [dispatch, router, user]);
+
+  // Handle API errors - redirect to login
+  useEffect(() => {
+    if (authError && !authLoading) {
+      // Clear any invalid tokens
+      localStorage.removeItem("accessToken");
+      router.push("/admin/login");
+    }
+  }, [authError, authLoading, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!formData.name || !formData.slug || !selectedOrganization) {
+    if (!formData.name || !formData.slug || !organization) {
       toast.error("Por favor completa todos los campos requeridos");
       return;
     }
@@ -74,7 +84,7 @@ export default function NewMoffinFormPage() {
         },
         body: JSON.stringify({
           ...formData,
-          organizationId: selectedOrganization,
+          organizationId: organization._id,
         }),
       });
 
@@ -102,6 +112,21 @@ export default function NewMoffinFormPage() {
     }));
   };
 
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Cargando...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!user || authError) {
+    return null;
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
       <div className="container mx-auto p-6">
@@ -124,25 +149,17 @@ export default function NewMoffinFormPage() {
             </CardHeader>
             <CardContent>
               <form onSubmit={handleSubmit} className="space-y-6">
-                {/* Organization Selector */}
-                <div>
-                  <label className="text-sm font-medium text-gray-700">
-                    Organización *
-                  </label>
-                  <select
-                    value={selectedOrganization}
-                    onChange={(e) => setSelectedOrganization(e.target.value)}
-                    className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    required
-                  >
-                    <option value="">Selecciona una organización</option>
-                    {organizations.map((org) => (
-                      <option key={org._id} value={org._id}>
-                        {org.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
+                {/* Organization Info */}
+                {organization && (
+                  <div>
+                    <label className="text-sm font-medium text-gray-700">
+                      Organización
+                    </label>
+                    <div className="mt-1 px-3 py-2 bg-blue-50 text-blue-700 rounded-md font-medium">
+                      {organization.name}
+                    </div>
+                  </div>
+                )}
 
                 {/* Form Name */}
                 <div>

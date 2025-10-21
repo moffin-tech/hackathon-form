@@ -24,15 +24,12 @@ export default function DashboardPage() {
   const dispatch = useAppDispatch();
   const {
     user,
+    organization,
     isLoading: authLoading,
     error: authError,
   } = useAppSelector((store: RootState) => store.authentication);
   const { getEffectiveUserId } = useImpersonation();
   const [forms, setForms] = useState<FormTemplate[]>([]);
-  const [organizations, setOrganizations] = useState<
-    Array<{ _id: string; name: string }>
-  >([]);
-  const [selectedOrganization, setSelectedOrganization] = useState<string>("");
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -58,21 +55,6 @@ export default function DashboardPage() {
     }
   }, [authError, authLoading, router]);
 
-  const fetchOrganizations = useCallback(async () => {
-    try {
-      const response = await fetch("/api/organizations");
-      if (response.ok) {
-        const data = await response.json();
-        setOrganizations(data);
-        if (data.length > 0 && !selectedOrganization) {
-          setSelectedOrganization(data[0]._id);
-        }
-      }
-    } catch {
-      toast.error("Error al cargar organizaciones");
-    }
-  }, [selectedOrganization]);
-
   const fetchForms = useCallback(async () => {
     try {
       const effectiveUserId = getEffectiveUserId();
@@ -90,10 +72,9 @@ export default function DashboardPage() {
 
   useEffect(() => {
     if (user) {
-      fetchOrganizations();
       fetchForms();
     }
-  }, [user, fetchOrganizations, fetchForms]);
+  }, [user, fetchForms]);
 
   const deleteForm = async (formId: string) => {
     if (!confirm("¿Estás seguro de que quieres eliminar este formulario?")) {
@@ -146,23 +127,15 @@ export default function DashboardPage() {
             <p className="text-gray-600">Bienvenido, {user?.name}</p>
           </div>
           <div className="flex items-center space-x-4">
-            {/* Organization Selector */}
-            {organizations.length > 0 && (
+            {/* Organization Info */}
+            {organization && (
               <div className="flex items-center space-x-2">
                 <label className="text-sm font-medium text-gray-700">
                   Organización:
                 </label>
-                <select
-                  value={selectedOrganization}
-                  onChange={(e) => setSelectedOrganization(e.target.value)}
-                  className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                >
-                  {organizations.map((org) => (
-                    <option key={org._id} value={org._id}>
-                      {org.name}
-                    </option>
-                  ))}
-                </select>
+                <span className="px-3 py-2 bg-blue-50 text-blue-700 rounded-md font-medium">
+                  {organization.name}
+                </span>
               </div>
             )}
             <div className="flex space-x-4">
