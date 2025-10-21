@@ -42,7 +42,7 @@ export default function HomePage() {
   });
 
   const handleFormUpdate = (updates: any) => {
-    setFormData(prev => ({ ...prev, ...updates }));
+    setFormData((prev) => ({ ...prev, ...updates }));
   };
 
   useEffect(() => {
@@ -113,10 +113,7 @@ export default function HomePage() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <FormBuilder 
-              formData={formData} 
-              onUpdate={handleFormUpdate} 
-            />
+            <FormBuilder formData={formData} onUpdate={handleFormUpdate} />
           </CardContent>
         </Card>
       </div>
