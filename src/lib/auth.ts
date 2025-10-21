@@ -4,8 +4,13 @@ import { MongoDBAdapter } from "@next-auth/mongodb-adapter";
 import clientPromise, { getDatabase } from "./mongodb";
 import bcrypt from "bcryptjs";
 
+// Validate required environment variables
+if (!process.env.NEXTAUTH_SECRET && process.env.NODE_ENV === "production") {
+  throw new Error("NEXTAUTH_SECRET is required in production");
+}
+
 export const authOptions: NextAuthOptions = {
-  secret: process.env.NEXTAUTH_SECRET || "fallback-secret-for-development",
+  secret: process.env.NEXTAUTH_SECRET || (process.env.NODE_ENV === "development" ? "development-secret-key" : undefined),
   adapter: MongoDBAdapter(clientPromise),
   providers: [
     CredentialsProvider({

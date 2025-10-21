@@ -45,9 +45,9 @@ Una plataforma completa de formularios dinámicos e inteligentes que implementa 
 
 ⚠️ **IMPORTANTE**: Debes configurar estas variables en Netlify ANTES del deploy:
 
-1. Ve a tu dashboard de Netlify
-2. Selecciona tu sitio → **Site settings** → **Environment variables**
-3. Agrega estas variables (exactamente como se muestran):
+1.  Ve a tu dashboard de Netlify
+2.  Selecciona tu sitio → **Site settings** → **Environment variables**
+3.  Agrega estas variables (exactamente como se muestran):
 
         ```
         MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/hackathon-forms?retryWrites=true&w=majority
