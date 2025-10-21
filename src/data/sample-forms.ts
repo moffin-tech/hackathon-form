@@ -615,4 +615,3 @@ export const sampleForms = [
   employeeOnboardingForm,
   supplierOnboardingForm,
 ];
-
