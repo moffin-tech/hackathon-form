@@ -5,7 +5,11 @@ import clientPromise, { getDatabase } from "./mongodb";
 import bcrypt from "bcryptjs";
 
 // Validate required environment variables
-if (!process.env.NEXTAUTH_SECRET && process.env.NODE_ENV === "production") {
+if (
+  !process.env.NEXTAUTH_SECRET &&
+  process.env.NODE_ENV === "production" &&
+  process.env.VERCEL
+) {
   throw new Error("NEXTAUTH_SECRET is required in production");
 }
 

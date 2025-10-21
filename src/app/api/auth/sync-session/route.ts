@@ -37,6 +37,13 @@ export async function POST(request: NextRequest) {
       user = await db.collection("users").findOne({ _id: newUser.insertedId });
     }
 
+    if (!user) {
+      return NextResponse.json(
+        { error: "Failed to create user" },
+        { status: 500 }
+      );
+    }
+
     // Create NextAuth session manually
     const sessionData = {
       user: {
