@@ -90,7 +90,7 @@ export default function NewMoffinFormPage() {
 
       if (response.ok) {
         toast.success("Formulario de Moffin creado exitosamente");
-        router.push("/");
+            router.push("/admin/dashboard");
       } else {
         const error = await response.json();
         toast.error(error.message || "Error al crear formulario");
