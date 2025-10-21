@@ -34,6 +34,30 @@ Una plataforma completa de formularios dinámicos e inteligentes que implementa 
 
 ## 🚀 Instalación y Configuración
 
+## 🌐 Deploy en Netlify
+
+### Variables de Entorno Requeridas
+
+Para hacer deploy en Netlify, necesitas configurar estas variables de entorno en tu dashboard de Netlify:
+
+1. Ve a **Site settings** → **Environment variables**
+2. Agrega las siguientes variables:
+
+```
+MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/hackathon-forms?retryWrites=true&w=majority
+NEXTAUTH_SECRET=your-secret-key-here
+NEXTAUTH_URL=https://tu-sitio.netlify.app
+```
+
+### Pasos para Deploy
+
+1. Conecta tu repositorio de GitHub a Netlify
+2. Configura las variables de entorno
+3. El build se ejecutará automáticamente
+4. ¡Tu aplicación estará lista!
+
+## 🚀 Instalación y Configuración Local
+
 ### 1. Instalar dependencias
 
 ```bash
@@ -46,11 +70,14 @@ Crea un archivo `.env.local` con las siguientes configuraciones:
 
 ```env
 # MongoDB Configuration
-MONGODB_URI=mongodb://localhost:27017/hackathon-forms
+MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/hackathon-forms?retryWrites=true&w=majority
 
 # NextAuth Configuration
-NEXTAUTH_URL=http://localhost:3000
 NEXTAUTH_SECRET=your-secret-key-here
+NEXTAUTH_URL=http://localhost:3000
+
+# Moffin API Configuration (opcional)
+MOFFIN_API_URL=https://solutions-api.moffin.mx/api/v1
 
 # Moffin Solutions API Configuration
 NEXT_PUBLIC_MOFFIN_CLIENT_ID=your_client_id_here
