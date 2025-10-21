@@ -7,16 +7,19 @@ import { ObjectId } from "mongodb";
 export async function POST(request: NextRequest) {
   try {
     const { token, userData } = await request.json();
-    
+
     if (!token || !userData) {
-      return NextResponse.json({ error: "Token and user data required" }, { status: 400 });
+      return NextResponse.json(
+        { error: "Token and user data required" },
+        { status: 400 }
+      );
     }
 
     const db = await getDatabase();
-    
+
     // Find or create user in MongoDB
-    let user = await db.collection("users").findOne({ 
-      email: userData.email 
+    let user = await db.collection("users").findOne({
+      email: userData.email,
     });
 
     if (!user) {
@@ -53,12 +56,11 @@ export async function POST(request: NextRequest) {
       expires: sessionData.expires,
     });
 
-    return NextResponse.json({ 
-      success: true, 
+    return NextResponse.json({
+      success: true,
       sessionToken: token,
-      user: sessionData.user 
+      user: sessionData.user,
     });
-
   } catch (error) {
     console.error("Error creating session:", error);
     return NextResponse.json(
@@ -71,16 +73,15 @@ export async function POST(request: NextRequest) {
 export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-    
+
     if (!session?.user) {
       return NextResponse.json({ error: "No active session" }, { status: 401 });
     }
 
-    return NextResponse.json({ 
+    return NextResponse.json({
       session,
-      user: session.user 
+      user: session.user,
     });
-
   } catch (error) {
     console.error("Error getting session:", error);
     return NextResponse.json(
