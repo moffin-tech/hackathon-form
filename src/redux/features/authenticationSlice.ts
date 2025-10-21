@@ -67,6 +67,23 @@ export const fetchSigninAsOtherUser = createAsyncThunk(
       });
       const { data } = resp;
       localStorage.setItem("accessToken", data.token);
+      
+      // Sync with NextAuth session
+      try {
+        await fetch("/api/auth/sync-session", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            token: data.token,
+            userData: data.user,
+          }),
+        });
+      } catch (syncError) {
+        console.error("Failed to sync session:", syncError);
+      }
+      
       action.onSuccess();
       return data;
     } catch (error) {
