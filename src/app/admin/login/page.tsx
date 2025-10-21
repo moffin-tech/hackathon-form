@@ -41,8 +41,7 @@ function LoginForm() {
             password,
             emailAsOtherUser,
             onSuccess: () => {
-              const redirectPath =
-                searchParams.get("redirect") || "/";
+              const redirectPath = searchParams.get("redirect") || "/";
               router.replace(redirectPath);
               router.refresh();
             },
