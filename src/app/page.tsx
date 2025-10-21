@@ -65,7 +65,8 @@ export default function HomePage() {
               </div>
               <CardTitle>Builder Visual</CardTitle>
               <CardDescription>
-                Crea formularios arrastrando y soltando elementos sin necesidad de código
+                Crea formularios arrastrando y soltando elementos sin necesidad
+                de código
               </CardDescription>
             </CardHeader>
           </Card>
@@ -113,7 +114,8 @@ export default function HomePage() {
               </div>
               <CardTitle>Validación Inteligente</CardTitle>
               <CardDescription>
-                Validación automática de campos y reglas de negocio personalizables
+                Validación automática de campos y reglas de negocio
+                personalizables
               </CardDescription>
             </CardHeader>
           </Card>
@@ -125,7 +127,8 @@ export default function HomePage() {
             <CardHeader>
               <CardTitle className="text-2xl">¿Listo para empezar?</CardTitle>
               <CardDescription className="text-lg">
-                Únete a miles de usuarios que ya están creando formularios increíbles
+                Únete a miles de usuarios que ya están creando formularios
+                increíbles
               </CardDescription>
             </CardHeader>
             <CardContent>
