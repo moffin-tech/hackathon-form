@@ -56,6 +56,7 @@ NEXTAUTH_URL=https://tu-sitio.netlify.app
 ```
 
 **Reemplaza:**
+
 - `username:password` con tus credenciales de MongoDB Atlas
 - `your-secret-key-here` con una clave secreta de 32+ caracteres
 - `tu-sitio.netlify.app` con tu URL real de Netlify

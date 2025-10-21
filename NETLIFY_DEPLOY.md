@@ -5,6 +5,7 @@
 You MUST configure these environment variables in your Netlify dashboard:
 
 ### 1. Go to Netlify Dashboard
+
 - Visit your site dashboard
 - Go to **Site settings** → **Environment variables**
 
