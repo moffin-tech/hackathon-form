@@ -37,7 +37,9 @@ export async function DELETE(
     await db.collection("forms").deleteOne({ _id: new ObjectId(id) });
 
     // Also delete related submissions
-    await db.collection("formSubmissions").deleteMany({ formId: new ObjectId(id) });
+    await db
+      .collection("formSubmissions")
+      .deleteMany({ formId: new ObjectId(id) });
 
     return NextResponse.json({ success: true });
   } catch (error) {

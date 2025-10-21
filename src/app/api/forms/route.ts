@@ -18,7 +18,9 @@ export async function GET(request: NextRequest) {
       : session.user.id;
 
     // Get organization from user info
-    const user = await db.collection("users").findOne({ _id: new ObjectId(effectiveUserId) });
+    const user = await db
+      .collection("users")
+      .findOne({ _id: new ObjectId(effectiveUserId) });
     if (!user) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
@@ -53,7 +55,9 @@ export async function POST(request: NextRequest) {
       : session.user.id;
 
     // Get user and organization info
-    const user = await db.collection("users").findOne({ _id: new ObjectId(effectiveUserId) });
+    const user = await db
+      .collection("users")
+      .findOne({ _id: new ObjectId(effectiveUserId) });
     if (!user) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
