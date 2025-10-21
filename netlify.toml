@@ -5,9 +5,9 @@
 [build.environment]
   NODE_VERSION = "20.18.0"
   NPM_VERSION = "10.8.1"
-  # Add your environment variables here or in Netlify dashboard
+  # Required environment variables (set these in Netlify dashboard):
   # MONGODB_URI = "mongodb+srv://username:password@cluster.mongodb.net/hackathon-forms?retryWrites=true&w=majority"
-  # NEXTAUTH_SECRET = "your-secret-key-here"
+  # NEXTAUTH_SECRET = "your-secret-key-here-32-characters-minimum"
   # NEXTAUTH_URL = "https://your-site.netlify.app"
 
 [[plugins]]

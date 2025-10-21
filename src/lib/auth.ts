@@ -10,7 +10,11 @@ if (!process.env.NEXTAUTH_SECRET && process.env.NODE_ENV === "production") {
 }
 
 export const authOptions: NextAuthOptions = {
-  secret: process.env.NEXTAUTH_SECRET || (process.env.NODE_ENV === "development" ? "development-secret-key" : undefined),
+  secret:
+    process.env.NEXTAUTH_SECRET ||
+    (process.env.NODE_ENV === "development"
+      ? "development-secret-key"
+      : undefined),
   adapter: MongoDBAdapter(clientPromise),
   providers: [
     CredentialsProvider({
