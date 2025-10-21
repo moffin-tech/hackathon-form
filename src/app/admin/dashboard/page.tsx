@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/Button";
 import {
@@ -18,6 +18,7 @@ import { useImpersonation } from "@/hooks/useImpersonation";
 import { useAppSelector, useAppDispatch } from "@/redux/hooks";
 import { fetchGetUser } from "@/redux/features/authenticationSlice";
 import { RootState } from "@/redux/store";
+import { financialOnboardingForm, employeeOnboardingForm, supplierOnboardingForm } from "@/data/sample-forms";
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -29,7 +30,44 @@ export default function DashboardPage() {
     error: authError,
   } = useAppSelector((store: RootState) => store.authentication);
   const { getEffectiveUserId } = useImpersonation();
-  const [forms, setForms] = useState<FormTemplate[]>([]);
+  const [forms, setForms] = useState<FormTemplate[]>([
+    {
+      _id: "1",
+      title: "Onboarding Financiero",
+      description: "Formulario para onboarding de clientes financieros",
+      sections: financialOnboardingForm.sections,
+      settings: financialOnboardingForm.settings,
+      isPublic: true,
+      tags: ["financiero", "onboarding"],
+      createdBy: user?._id || "",
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    },
+    {
+      _id: "2", 
+      title: "Onboarding de Empleados",
+      description: "Formulario para onboarding de nuevos empleados",
+      sections: employeeOnboardingForm.sections,
+      settings: employeeOnboardingForm.settings,
+      isPublic: true,
+      tags: ["empleados", "onboarding"],
+      createdBy: user?._id || "",
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    },
+    {
+      _id: "3",
+      title: "Onboarding de Proveedores", 
+      description: "Formulario para onboarding de proveedores",
+      sections: supplierOnboardingForm.sections,
+      settings: supplierOnboardingForm.settings,
+      isPublic: true,
+      tags: ["proveedores", "onboarding"],
+      createdBy: user?._id || "",
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    },
+  ]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -43,6 +81,8 @@ export default function DashboardPage() {
     // Fetch user data if not already loaded
     if (!user && token) {
       dispatch(fetchGetUser());
+    } else if (user) {
+      setIsLoading(false);
     }
   }, [dispatch, router, user]);
 
@@ -55,43 +95,15 @@ export default function DashboardPage() {
     }
   }, [authError, authLoading, router]);
 
-  const fetchForms = useCallback(async () => {
-    try {
-      const effectiveUserId = getEffectiveUserId();
-      const response = await fetch(`/api/forms?userId=${effectiveUserId}`);
-      if (response.ok) {
-        const data = await response.json();
-        setForms(data);
-      }
-    } catch {
-      toast.error("Error al cargar formularios");
-    } finally {
-      setIsLoading(false);
-    }
-  }, [getEffectiveUserId]);
-
-  useEffect(() => {
-    if (user) {
-      fetchForms();
-    }
-  }, [user, fetchForms]);
-
   const deleteForm = async (formId: string) => {
     if (!confirm("¿Estás seguro de que quieres eliminar este formulario?")) {
       return;
     }
 
     try {
-      const response = await fetch(`/api/forms/${formId}`, {
-        method: "DELETE",
-      });
-
-      if (response.ok) {
-        toast.success("Formulario eliminado");
-        fetchForms();
-      } else {
-        toast.error("Error al eliminar formulario");
-      }
+      // Remove from local state
+      setForms(prevForms => prevForms.filter(form => form._id !== formId));
+      toast.success("Formulario eliminado");
     } catch {
       toast.error("Error al eliminar formulario");
     }
@@ -173,24 +185,6 @@ export default function DashboardPage() {
                     />
                   </svg>
                   Formulario Moffin
-                </Button>
-              </Link>
-              <Link href="/admin/organizations">
-                <Button variant="outline">
-                  <svg
-                    className="w-4 h-4 mr-2"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
-                    />
-                  </svg>
-                  Organizaciones
                 </Button>
               </Link>
               <Link href="/">
