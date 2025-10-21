@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { getDatabase } from "@/lib/mongodb";
 import { FormTemplate } from "@/types/auth";
+import { ObjectId } from "mongodb";
 
 export async function GET(request: NextRequest) {
   try {
@@ -17,7 +18,7 @@ export async function GET(request: NextRequest) {
       : session.user.id;
 
     // Get organization from user info
-    const user = await db.collection("users").findOne({ _id: effectiveUserId });
+    const user = await db.collection("users").findOne({ _id: new ObjectId(effectiveUserId) });
     if (!user) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
@@ -52,7 +53,7 @@ export async function POST(request: NextRequest) {
       : session.user.id;
 
     // Get user and organization info
-    const user = await db.collection("users").findOne({ _id: effectiveUserId });
+    const user = await db.collection("users").findOne({ _id: new ObjectId(effectiveUserId) });
     if (!user) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }

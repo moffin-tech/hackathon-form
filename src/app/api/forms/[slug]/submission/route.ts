@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getDatabase } from "@/lib/mongodb";
+import { ObjectId } from "mongodb";
 
 export async function POST(
   request: NextRequest,
@@ -25,12 +26,12 @@ export async function POST(
     // Save or update submission
     const submission = await db.collection("formSubmissions").findOneAndUpdate(
       {
-        formId: form._id,
+        formId: new ObjectId(form._id),
         sessionId: sessionId,
       },
       {
         $set: {
-          formId: form._id,
+          formId: new ObjectId(form._id),
           sessionId: sessionId,
           data: submissionData.data,
           status: submissionData.status || "draft",
@@ -86,7 +87,7 @@ export async function GET(
 
     // Get submission
     const submission = await db.collection("formSubmissions").findOne({
-      formId: form._id,
+      formId: new ObjectId(form._id),
       sessionId: sessionId,
     });
 

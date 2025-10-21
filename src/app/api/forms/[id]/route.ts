@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { getDatabase } from "@/lib/mongodb";
+import { ObjectId } from "mongodb";
 
 export async function DELETE(
   request: NextRequest,
@@ -21,7 +22,7 @@ export async function DELETE(
 
     // Check if user owns the form
     const form = await db.collection("forms").findOne({
-      _id: id,
+      _id: new ObjectId(id),
       createdBy: effectiveUserId,
     });
 
@@ -33,10 +34,10 @@ export async function DELETE(
     }
 
     // Delete the form
-    await db.collection("forms").deleteOne({ _id: id });
+    await db.collection("forms").deleteOne({ _id: new ObjectId(id) });
 
     // Also delete related submissions
-    await db.collection("formSubmissions").deleteMany({ formId: id });
+    await db.collection("formSubmissions").deleteMany({ formId: new ObjectId(id) });
 
     return NextResponse.json({ success: true });
   } catch (error) {
