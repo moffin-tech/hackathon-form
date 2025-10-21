@@ -42,7 +42,7 @@ function LoginForm() {
             emailAsOtherUser,
             onSuccess: () => {
               const redirectPath =
-                searchParams.get("redirect") || "/admin/dashboard";
+                searchParams.get("redirect") || "/";
               router.replace(redirectPath);
               router.refresh();
             },
