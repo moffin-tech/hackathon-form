@@ -11,14 +11,14 @@ export async function GET(
 
     // Get form by slug (public access)
     const form = await db.collection("forms").findOne({ slug });
-    
+
     if (!form) {
       return NextResponse.json({ error: "Form not found" }, { status: 404 });
     }
 
     // Return form without sensitive data
     const { createdBy, organizationId, ...publicForm } = form;
-    
+
     return NextResponse.json({ form: publicForm });
   } catch (error) {
     console.error("Error fetching form:", error);

@@ -42,6 +42,7 @@ export interface FormTemplate {
   sections: FormSection[];
   settings: FormSettings;
   permissions: FormPermissions;
+  slug: string;
   createdBy: string;
   createdAt: Date;
   updatedAt: Date;

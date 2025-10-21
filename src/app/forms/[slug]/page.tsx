@@ -19,7 +19,7 @@ export default function PublicFormPage() {
   const params = useParams();
   const router = useRouter();
   const slug = params.slug as string;
-  
+
   const [form, setForm] = useState<FormTemplate | null>(null);
   const [formData, setFormData] = useState<Record<string, any>>({});
   const [isLoading, setIsLoading] = useState(true);
@@ -29,14 +29,16 @@ export default function PublicFormPage() {
 
   useEffect(() => {
     if (!slug) return;
-    
+
     // Generate or retrieve session ID
     const storedSessionId = localStorage.getItem(`form_session_${slug}`);
     if (storedSessionId) {
       setSessionId(storedSessionId);
       loadFormAndData(storedSessionId);
     } else {
-      const newSessionId = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      const newSessionId = `session_${Date.now()}_${Math.random()
+        .toString(36)
+        .substr(2, 9)}`;
       setSessionId(newSessionId);
       localStorage.setItem(`form_session_${slug}`, newSessionId);
       loadForm();
@@ -62,7 +64,9 @@ export default function PublicFormPage() {
 
   const loadFormAndData = async (sessionId: string) => {
     try {
-      const response = await fetch(`/api/forms/${slug}/submission?sessionId=${sessionId}`);
+      const response = await fetch(
+        `/api/forms/${slug}/submission?sessionId=${sessionId}`
+      );
       if (response.ok) {
         const data = await response.json();
         setForm(data.form);
@@ -79,9 +83,12 @@ export default function PublicFormPage() {
     }
   };
 
-  const saveProgress = async (data: Record<string, any>, status: "draft" | "submitted" = "draft") => {
+  const saveProgress = async (
+    data: Record<string, any>,
+    status: "draft" | "submitted" = "draft"
+  ) => {
     if (!form || !sessionId) return;
-    
+
     try {
       await fetch(`/api/forms/${slug}/submission`, {
         method: "POST",
@@ -102,7 +109,7 @@ export default function PublicFormPage() {
   const handleFieldChange = (fieldId: string, value: any) => {
     const newData = { ...formData, [fieldId]: value };
     setFormData(newData);
-    
+
     // Auto-save if enabled
     if (form?.settings?.autoSave) {
       saveProgress(newData);
@@ -111,15 +118,15 @@ export default function PublicFormPage() {
 
   const handleSubmit = async () => {
     if (!form) return;
-    
+
     setIsSubmitting(true);
     try {
       await saveProgress(formData, "submitted");
       toast.success("Formulario enviado exitosamente");
-      
+
       // Clear session
       localStorage.removeItem(`form_session_${slug}`);
-      
+
       // Redirect or show success message
       router.push(`/forms/${slug}/success`);
     } catch (error) {
@@ -131,7 +138,7 @@ export default function PublicFormPage() {
 
   const renderField = (field: FormField) => {
     const value = formData[field.id] || "";
-    
+
     switch (field.type) {
       case "text":
       case "email":
@@ -147,7 +154,7 @@ export default function PublicFormPage() {
             className="w-full"
           />
         );
-      
+
       case "textarea":
         return (
           <textarea
@@ -159,7 +166,7 @@ export default function PublicFormPage() {
             rows={4}
           />
         );
-      
+
       case "select":
         return (
           <select
@@ -176,7 +183,7 @@ export default function PublicFormPage() {
             ))}
           </select>
         );
-      
+
       case "radio":
         return (
           <div className="space-y-2">
@@ -196,7 +203,7 @@ export default function PublicFormPage() {
             ))}
           </div>
         );
-      
+
       case "checkbox":
         return (
           <div className="space-y-2">
@@ -205,7 +212,9 @@ export default function PublicFormPage() {
                 <input
                   type="checkbox"
                   value={option.value}
-                  checked={Array.isArray(value) ? value.includes(option.value) : false}
+                  checked={
+                    Array.isArray(value) ? value.includes(option.value) : false
+                  }
                   onChange={(e) => {
                     const currentValues = Array.isArray(value) ? value : [];
                     const newValues = e.target.checked
@@ -220,7 +229,7 @@ export default function PublicFormPage() {
             ))}
           </div>
         );
-      
+
       case "date":
         return (
           <Input
@@ -231,7 +240,7 @@ export default function PublicFormPage() {
             className="w-full"
           />
         );
-      
+
       case "file":
         return (
           <Input
@@ -246,7 +255,7 @@ export default function PublicFormPage() {
             className="w-full"
           />
         );
-      
+
       default:
         return (
           <Input
@@ -263,10 +272,13 @@ export default function PublicFormPage() {
 
   const calculateProgress = () => {
     if (!form || !form.sections) return 0;
-    
-    const totalFields = form.sections.reduce((acc, section) => acc + section.fields.length, 0);
+
+    const totalFields = form.sections.reduce(
+      (acc, section) => acc + section.fields.length,
+      0
+    );
     const completedFields = Object.keys(formData).length;
-    
+
     return totalFields > 0 ? (completedFields / totalFields) * 100 : 0;
   };
 
@@ -285,10 +297,10 @@ export default function PublicFormPage() {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
         <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-900 mb-4">Formulario no encontrado</h1>
-          <Button onClick={() => router.push("/")}>
-            Volver al inicio
-          </Button>
+          <h1 className="text-2xl font-bold text-gray-900 mb-4">
+            Formulario no encontrado
+          </h1>
+          <Button onClick={() => router.push("/")}>Volver al inicio</Button>
         </div>
       </div>
     );
@@ -299,9 +311,11 @@ export default function PublicFormPage() {
       <div className="container mx-auto p-6 max-w-4xl">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">{form.title}</h1>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            {form.title}
+          </h1>
           <p className="text-gray-600">{form.description}</p>
-          
+
           {form.settings?.showProgress && (
             <div className="mt-4">
               <div className="flex justify-between text-sm text-gray-600 mb-2">
@@ -328,11 +342,15 @@ export default function PublicFormPage() {
                   <div key={field.id} className="space-y-2">
                     <label className="block text-sm font-medium text-gray-700">
                       {field.label}
-                      {field.required && <span className="text-red-500 ml-1">*</span>}
+                      {field.required && (
+                        <span className="text-red-500 ml-1">*</span>
+                      )}
                     </label>
                     {renderField(field)}
                     {field.placeholder && (
-                      <p className="text-xs text-gray-500">{field.placeholder}</p>
+                      <p className="text-xs text-gray-500">
+                        {field.placeholder}
+                      </p>
                     )}
                   </div>
                 ))}
@@ -343,16 +361,32 @@ export default function PublicFormPage() {
 
         {/* Submit Button */}
         <div className="mt-8 flex justify-end">
-          <Button 
+          <Button
             onClick={handleSubmit}
             disabled={isSubmitting}
             className="px-8"
           >
             {isSubmitting ? (
               <>
-                <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                <svg
+                  className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                  ></circle>
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                  ></path>
                 </svg>
                 Enviando...
               </>

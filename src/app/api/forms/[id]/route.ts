@@ -20,13 +20,16 @@ export async function DELETE(
       : session.user.id;
 
     // Check if user owns the form
-    const form = await db.collection("forms").findOne({ 
+    const form = await db.collection("forms").findOne({
       _id: id,
-      createdBy: effectiveUserId 
+      createdBy: effectiveUserId,
     });
 
     if (!form) {
-      return NextResponse.json({ error: "Form not found or unauthorized" }, { status: 404 });
+      return NextResponse.json(
+        { error: "Form not found or unauthorized" },
+        { status: 404 }
+      );
     }
 
     // Delete the form

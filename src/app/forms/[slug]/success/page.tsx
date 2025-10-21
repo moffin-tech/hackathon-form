@@ -40,7 +40,8 @@ export default function FormSuccessPage() {
               ¡Formulario Enviado!
             </CardTitle>
             <CardDescription>
-              Tu formulario ha sido enviado exitosamente. Gracias por completarlo.
+              Tu formulario ha sido enviado exitosamente. Gracias por
+              completarlo.
             </CardDescription>
           </CardHeader>
           <CardContent className="text-center space-y-4">
@@ -48,11 +49,9 @@ export default function FormSuccessPage() {
               Hemos recibido tu información y la procesaremos a la brevedad.
             </p>
             <div className="flex flex-col space-y-2">
-              <Button onClick={() => router.push("/")}>
-                Volver al inicio
-              </Button>
-              <Button 
-                variant="outline" 
+              <Button onClick={() => router.push("/")}>Volver al inicio</Button>
+              <Button
+                variant="outline"
                 onClick={() => router.push(`/forms/${slug}`)}
               >
                 Completar otro formulario

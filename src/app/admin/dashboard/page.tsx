@@ -89,7 +89,7 @@ export default function DashboardPage() {
       });
 
       if (response.ok) {
-        setForms(forms.filter(form => form._id !== formId));
+        setForms(forms.filter((form) => form._id !== formId));
         toast.success("Formulario eliminado");
       } else {
         toast.error("Error al eliminar formulario");
@@ -282,9 +282,7 @@ export default function DashboardPage() {
                   ? new Date(forms[0].createdAt).toLocaleDateString()
                   : "N/A"}
               </div>
-              <p className="text-xs text-muted-foreground">
-                Fecha de creación
-              </p>
+              <p className="text-xs text-muted-foreground">Fecha de creación</p>
             </CardContent>
           </Card>
         </div>
@@ -293,9 +291,7 @@ export default function DashboardPage() {
         <Card>
           <CardHeader>
             <CardTitle>Mis Formularios</CardTitle>
-            <CardDescription>
-              Gestiona tus formularios creados
-            </CardDescription>
+            <CardDescription>Gestiona tus formularios creados</CardDescription>
           </CardHeader>
           <CardContent>
             {forms.length === 0 ? (

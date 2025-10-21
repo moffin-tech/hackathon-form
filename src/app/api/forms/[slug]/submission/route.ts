@@ -16,15 +16,17 @@ export async function POST(
     }
 
     const submissionData = await request.json();
-    
+
     // Generate session ID for multi-session support
-    const sessionId = submissionData.sessionId || `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    const sessionId =
+      submissionData.sessionId ||
+      `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
     // Save or update submission
     const submission = await db.collection("formSubmissions").findOneAndUpdate(
-      { 
+      {
         formId: form._id,
-        sessionId: sessionId 
+        sessionId: sessionId,
       },
       {
         $set: {
@@ -33,12 +35,14 @@ export async function POST(
           data: submissionData.data,
           status: submissionData.status || "draft",
           updatedAt: new Date(),
-          ...(submissionData.status === "submitted" && { submittedAt: new Date() })
-        }
+          ...(submissionData.status === "submitted" && {
+            submittedAt: new Date(),
+          }),
+        },
       },
-      { 
+      {
         upsert: true,
-        returnDocument: "after"
+        returnDocument: "after",
       }
     );
 
@@ -64,9 +68,12 @@ export async function GET(
     const { slug } = await params;
     const url = new URL(request.url);
     const sessionId = url.searchParams.get("sessionId");
-    
+
     if (!sessionId) {
-      return NextResponse.json({ error: "Session ID required" }, { status: 400 });
+      return NextResponse.json(
+        { error: "Session ID required" },
+        { status: 400 }
+      );
     }
 
     const db = await getDatabase();
@@ -80,12 +87,12 @@ export async function GET(
     // Get submission
     const submission = await db.collection("formSubmissions").findOne({
       formId: form._id,
-      sessionId: sessionId
+      sessionId: sessionId,
     });
 
-    return NextResponse.json({ 
+    return NextResponse.json({
       submission: submission || null,
-      form: form 
+      form: form,
     });
   } catch (error) {
     console.error("Error fetching form submission:", error);

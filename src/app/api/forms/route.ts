@@ -66,10 +66,10 @@ export async function POST(request: NextRequest) {
       .replace(/[^a-z0-9\s-]/g, "")
       .replace(/\s+/g, "-")
       .trim();
-    
+
     let slug = baseSlug;
     let counter = 1;
-    
+
     // Ensure slug is unique
     while (await db.collection("forms").findOne({ slug })) {
       slug = `${baseSlug}-${counter}`;
