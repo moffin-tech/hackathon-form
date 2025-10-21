@@ -19,9 +19,11 @@ import { useImpersonation } from "@/hooks/useImpersonation";
 export default function HomePage() {
   const router = useRouter();
   const dispatch = useAppDispatch();
-  const { user, isLoading: authLoading, error: authError } = useAppSelector(
-    (store: any) => store.authentication
-  );
+  const {
+    user,
+    isLoading: authLoading,
+    error: authError,
+  } = useAppSelector((store: any) => store.authentication);
   const { getEffectiveUserId } = useImpersonation();
   const [isLoading, setIsLoading] = useState(true);
 

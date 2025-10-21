@@ -104,7 +104,7 @@ export const fetchGetUser = createAsyncThunk(
       if (!token) {
         throw new Error("No token found");
       }
-      
+
       const resp = await axiosUsers.get("/v1/user/info", {
         withCredentials: true,
         headers: {
