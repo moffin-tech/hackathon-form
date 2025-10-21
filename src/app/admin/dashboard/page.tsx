@@ -84,7 +84,7 @@ export default function DashboardPage() {
     }
 
     try {
-      const response = await fetch(`/api/forms/${formId}`, {
+      const response = await fetch(`/api/forms/delete/${formId}`, {
         method: "DELETE",
       });
 
