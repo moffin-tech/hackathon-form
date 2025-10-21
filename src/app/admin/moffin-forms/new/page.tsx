@@ -84,7 +84,7 @@ export default function NewMoffinFormPage() {
         },
         body: JSON.stringify({
           ...formData,
-          organizationId: organization._id,
+          organizationId: organization.id,
         }),
       });
 
