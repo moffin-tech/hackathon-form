@@ -19,13 +19,15 @@ import { useImpersonation } from "@/hooks/useImpersonation";
 export default function HomePage() {
   const router = useRouter();
   const dispatch = useAppDispatch();
-  const { user, isLoading: authLoading } = useAppSelector((store: any) => store.authentication);
+  const { user, isLoading: authLoading, error: authError } = useAppSelector(
+    (store: any) => store.authentication
+  );
   const { getEffectiveUserId } = useImpersonation();
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     // Check if user is authenticated
-    const token = localStorage.getItem('accessToken');
+    const token = localStorage.getItem("accessToken");
     if (!token) {
       router.push("/admin/login");
       return;
@@ -39,6 +41,15 @@ export default function HomePage() {
     }
   }, [dispatch, router, user]);
 
+  // Handle API errors - redirect to login
+  useEffect(() => {
+    if (authError && !authLoading) {
+      // Clear any invalid tokens
+      localStorage.removeItem("accessToken");
+      router.push("/admin/login");
+    }
+  }, [authError, authLoading, router]);
+
   // Show loading while checking authentication
   if (authLoading || isLoading) {
     return (
@@ -51,8 +62,8 @@ export default function HomePage() {
     );
   }
 
-  // Redirect to login if not authenticated
-  if (!user) {
+  // Redirect to login if not authenticated or if there's an error
+  if (!user || authError) {
     return null;
   }
 
@@ -61,7 +72,7 @@ export default function HomePage() {
       <div className="container mx-auto p-6">
         {/* Impersonation Banner */}
         <ImpersonationBanner />
-        
+
         {/* Header */}
         <div className="flex justify-between items-center mb-8">
           <div>
@@ -104,7 +115,8 @@ export default function HomePage() {
           <CardHeader>
             <CardTitle>Crear Nuevo Formulario</CardTitle>
             <CardDescription>
-              Diseña formularios dinámicos e inteligentes con nuestro builder visual
+              Diseña formularios dinámicos e inteligentes con nuestro builder
+              visual
             </CardDescription>
           </CardHeader>
           <CardContent>

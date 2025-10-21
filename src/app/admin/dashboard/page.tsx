@@ -22,7 +22,7 @@ import { RootState } from "@/redux/store";
 export default function DashboardPage() {
   const router = useRouter();
   const dispatch = useAppDispatch();
-  const { user, isLoading: authLoading } = useAppSelector(
+  const { user, isLoading: authLoading, error: authError } = useAppSelector(
     (store: RootState) => store.authentication
   );
   const { getEffectiveUserId } = useImpersonation();
@@ -46,6 +46,15 @@ export default function DashboardPage() {
       dispatch(fetchGetUser());
     }
   }, [dispatch, router, user]);
+
+  // Handle API errors - redirect to login
+  useEffect(() => {
+    if (authError && !authLoading) {
+      // Clear any invalid tokens
+      localStorage.removeItem("accessToken");
+      router.push("/admin/login");
+    }
+  }, [authError, authLoading, router]);
 
   const fetchOrganizations = useCallback(async () => {
     try {
@@ -116,7 +125,7 @@ export default function DashboardPage() {
     );
   }
 
-  if (!user) {
+  if (!user || authError) {
     return null;
   }
 

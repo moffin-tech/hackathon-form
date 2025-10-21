@@ -101,6 +101,10 @@ export const fetchGetUser = createAsyncThunk(
   async (action, metadata) => {
     try {
       const token = localStorage.getItem("accessToken");
+      if (!token) {
+        throw new Error("No token found");
+      }
+      
       const resp = await axiosUsers.get("/v1/user/info", {
         withCredentials: true,
         headers: {
@@ -110,7 +114,9 @@ export const fetchGetUser = createAsyncThunk(
       const { data } = resp;
       return data;
     } catch (error) {
-      throw new Error();
+      // Clear invalid token
+      localStorage.removeItem("accessToken");
+      throw new Error("Failed to fetch user info");
     }
   }
 );
@@ -202,6 +208,7 @@ const authenticationSlice = createSlice({
     // Handling fetchGetUser
     builder.addCase(fetchGetUser.pending, (state) => {
       state.isLoading = true;
+      state.error = false;
     });
     builder.addCase(
       fetchGetUser.fulfilled,
@@ -209,11 +216,15 @@ const authenticationSlice = createSlice({
         state.isLoading = false;
         state.user = { ...action.payload.user, token: action.payload.token };
         state.organization = action.payload.organization;
+        state.error = false;
       }
     );
     builder.addCase(fetchGetUser.rejected, (state, action) => {
       state.isLoading = false;
       state.error = true;
+      state.user = null;
+      state.organization = null;
+      state.token = null;
     });
 
     // Handling fetchLogoutUser
