@@ -1,10 +1,8 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { useRouter } from "next/navigation";
-import { useAppSelector, useAppDispatch } from "@/redux/hooks";
-import { fetchGetUser } from "@/redux/features/authenticationSlice";
-import { FormBuilder } from "@/components/form-builder/FormBuilder";
+import { Button } from "@/components/ui/Button";
 import {
   Card,
   CardContent,
@@ -12,137 +10,135 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/Card";
-import { Button } from "@/components/ui/Button";
-import ImpersonationBanner from "@/components/admin/ImpersonationBanner";
-import { useImpersonation } from "@/hooks/useImpersonation";
 
 export default function HomePage() {
   const router = useRouter();
-  const dispatch = useAppDispatch();
-  const {
-    user,
-    isLoading: authLoading,
-    error: authError,
-  } = useAppSelector((store: any) => store.authentication);
-  const { getEffectiveUserId } = useImpersonation();
-  const [isLoading, setIsLoading] = useState(true);
-  const [formData, setFormData] = useState({
-    title: "",
-    description: "",
-    sections: [],
-    settings: {
-      allowMultiSession: true,
-      allowEdit: true,
-      autoSave: true,
-      showProgress: true,
-      requireAuth: false,
-    },
-    isPublic: false,
-    tags: [],
-  });
-
-  const handleFormUpdate = (updates: any) => {
-    setFormData((prev) => ({ ...prev, ...updates }));
-  };
-
-  useEffect(() => {
-    // Check if user is authenticated
-    const token = localStorage.getItem("accessToken");
-    if (!token) {
-      router.push("/admin/login");
-      return;
-    }
-
-    // Fetch user data if not already loaded
-    if (!user && token) {
-      dispatch(fetchGetUser());
-    } else if (user) {
-      setIsLoading(false);
-    }
-  }, [dispatch, router, user]);
-
-  // Handle API errors - redirect to login
-  useEffect(() => {
-    if (authError && !authLoading) {
-      // Clear any invalid tokens
-      localStorage.removeItem("accessToken");
-      router.push("/admin/login");
-    }
-  }, [authError, authLoading, router]);
-
-  // Show loading while checking authentication
-  if (authLoading || isLoading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Cargando...</p>
-        </div>
-      </div>
-    );
-  }
-
-  // Redirect to login if not authenticated or if there's an error
-  if (!user || authError) {
-    return null;
-  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
       <div className="container mx-auto p-6">
-        {/* Impersonation Banner */}
-        <ImpersonationBanner />
-
         {/* Header */}
-        <div className="flex justify-between items-center mb-8">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">
-              Builder de Formularios
-            </h1>
-            <p className="text-gray-600">Bienvenido, {user?.name}</p>
-          </div>
-          <div className="flex space-x-4">
+        <div className="text-center mb-12">
+          <h1 className="text-5xl font-bold text-gray-900 mb-4">
+            Form Builder
+          </h1>
+          <p className="text-xl text-gray-600 mb-8">
+            Crea formularios dinámicos e inteligentes de forma fácil y rápida
+          </p>
+          <div className="flex justify-center space-x-4">
             <Button
-              onClick={() => router.push("/admin/dashboard")}
-              variant="outline"
+              onClick={() => router.push("/admin/login")}
+              size="lg"
+              className="px-8 py-3"
             >
-              <svg
-                className="w-4 h-4 mr-2"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
-                />
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                />
-              </svg>
-              Dashboard
+              Iniciar Sesión
+            </Button>
+            <Button
+              onClick={() => router.push("/admin/register")}
+              variant="outline"
+              size="lg"
+              className="px-8 py-3"
+            >
+              Registrarse
             </Button>
           </div>
         </div>
 
-        {/* Form Builder */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Crear Nuevo Formulario</CardTitle>
-            <CardDescription>
-              Diseña formularios dinámicos e inteligentes con nuestro builder
-              visual
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <FormBuilder formData={formData} onUpdate={handleFormUpdate} />
-          </CardContent>
-        </Card>
+        {/* Features */}
+        <div className="grid md:grid-cols-3 gap-8 mb-12">
+          <Card>
+            <CardHeader>
+              <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-4">
+                <svg
+                  className="w-6 h-6 text-blue-600"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                  />
+                </svg>
+              </div>
+              <CardTitle>Builder Visual</CardTitle>
+              <CardDescription>
+                Crea formularios arrastrando y soltando elementos sin necesidad de código
+              </CardDescription>
+            </CardHeader>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mb-4">
+                <svg
+                  className="w-6 h-6 text-green-600"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M13 10V3L4 14h7v7l9-11h-7z"
+                  />
+                </svg>
+              </div>
+              <CardTitle>Rápido y Eficiente</CardTitle>
+              <CardDescription>
+                Genera formularios en minutos con nuestra interfaz intuitiva
+              </CardDescription>
+            </CardHeader>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mb-4">
+                <svg
+                  className="w-6 h-6 text-purple-600"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
+                </svg>
+              </div>
+              <CardTitle>Validación Inteligente</CardTitle>
+              <CardDescription>
+                Validación automática de campos y reglas de negocio personalizables
+              </CardDescription>
+            </CardHeader>
+          </Card>
+        </div>
+
+        {/* CTA Section */}
+        <div className="text-center">
+          <Card className="max-w-2xl mx-auto">
+            <CardHeader>
+              <CardTitle className="text-2xl">¿Listo para empezar?</CardTitle>
+              <CardDescription className="text-lg">
+                Únete a miles de usuarios que ya están creando formularios increíbles
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button
+                onClick={() => router.push("/admin/login")}
+                size="lg"
+                className="w-full"
+              >
+                Comenzar Ahora
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </div>
   );
