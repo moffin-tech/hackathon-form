@@ -36,6 +36,11 @@ Una plataforma completa de formularios dinámicos e inteligentes que implementa 
 
 ## 🌐 Deploy en Netlify
 
+### Requisitos Previos
+
+- **Node.js**: Versión 18.x o 20.x (Netlify no soporta Node.js 22+)
+- **MongoDB**: Cluster de MongoDB Atlas o instancia local
+
 ### Variables de Entorno Requeridas
 
 Para hacer deploy en Netlify, necesitas configurar estas variables de entorno en tu dashboard de Netlify:
@@ -49,12 +54,20 @@ NEXTAUTH_SECRET=your-secret-key-here
 NEXTAUTH_URL=https://tu-sitio.netlify.app
 ```
 
+### Configuración Automática
+
+El proyecto incluye:
+- **`.nvmrc`**: Especifica Node.js 20.18.0
+- **`netlify.toml`**: Configuración automática para Netlify
+- **`package.json`**: Engines especificados para compatibilidad
+
 ### Pasos para Deploy
 
 1. Conecta tu repositorio de GitHub a Netlify
 2. Configura las variables de entorno
-3. El build se ejecutará automáticamente
-4. ¡Tu aplicación estará lista!
+3. Netlify detectará automáticamente la configuración
+4. El build se ejecutará con Node.js 20.18.0
+5. ¡Tu aplicación estará lista!
 
 ## 🚀 Instalación y Configuración Local
 
