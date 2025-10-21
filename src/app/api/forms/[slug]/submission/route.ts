@@ -49,7 +49,7 @@ export async function POST(
 
     return NextResponse.json({
       success: true,
-      submissionId: submission._id,
+      submissionId: submission.value?._id,
       sessionId: sessionId,
     });
   } catch (error) {
