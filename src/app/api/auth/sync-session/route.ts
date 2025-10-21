@@ -8,9 +8,45 @@ export async function POST(request: NextRequest) {
   try {
     const { token, userData } = await request.json();
 
-    if (!token || !userData) {
+    if (!token) {
       return NextResponse.json(
-        { error: "Token and user data required" },
+        { error: "Token is required" },
+        { status: 400 }
+      );
+    }
+
+    // If userData is not provided, try to extract from token
+    let extractedUserData = userData;
+    if (!extractedUserData) {
+      try {
+        // Decode JWT token to extract user data
+        const base64Url = token.split('.')[1];
+        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+        const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+          return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+        }).join(''));
+        
+        const tokenData = JSON.parse(jsonPayload);
+        extractedUserData = {
+          email: tokenData.user?.email,
+          name: tokenData.user?.name,
+          lastName: tokenData.user?.lastName,
+          role: tokenData.user?.role,
+          organizationId: tokenData.organization?.id,
+          permissions: tokenData.user?.permissions || [],
+        };
+      } catch (decodeError) {
+        console.error("Error decoding token:", decodeError);
+        return NextResponse.json(
+          { error: "Invalid token format" },
+          { status: 400 }
+        );
+      }
+    }
+
+    if (!extractedUserData?.email) {
+      return NextResponse.json(
+        { error: "User data could not be extracted from token" },
         { status: 400 }
       );
     }
@@ -19,18 +55,18 @@ export async function POST(request: NextRequest) {
 
     // Find or create user in MongoDB
     let user = await db.collection("users").findOne({
-      email: userData.email,
+      email: extractedUserData.email,
     });
 
     if (!user) {
       // Create user if doesn't exist
       const newUser = await db.collection("users").insertOne({
-        email: userData.email,
-        name: userData.name,
-        lastName: userData.lastName,
-        role: userData.role,
-        organizationId: userData.organizationId,
-        permissions: userData.permissions,
+        email: extractedUserData.email,
+        name: extractedUserData.name,
+        lastName: extractedUserData.lastName,
+        role: extractedUserData.role,
+        organizationId: extractedUserData.organizationId,
+        permissions: extractedUserData.permissions,
         createdAt: new Date(),
         updatedAt: new Date(),
       });
