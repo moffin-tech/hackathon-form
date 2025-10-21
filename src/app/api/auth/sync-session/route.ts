@@ -44,14 +44,17 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // At this point, user is guaranteed to be non-null
+    const userRecord = user as NonNullable<typeof user>;
+
     // Create NextAuth session manually
     const sessionData = {
       user: {
-        id: user._id.toString(),
-        email: user.email,
-        name: user.name,
-        role: user.role,
-        organizationId: user.organizationId,
+        id: userRecord._id.toString(),
+        email: userRecord.email,
+        name: userRecord.name,
+        role: userRecord.role,
+        organizationId: userRecord.organizationId,
       },
       expires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days
     };
@@ -59,7 +62,7 @@ export async function POST(request: NextRequest) {
     // Store session in MongoDB (NextAuth format)
     await db.collection("sessions").insertOne({
       sessionToken: token,
-      userId: user._id,
+      userId: userRecord._id,
       expires: sessionData.expires,
     });
 
