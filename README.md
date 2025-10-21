@@ -57,6 +57,7 @@ NEXTAUTH_URL=https://tu-sitio.netlify.app
 ### Configuración Automática
 
 El proyecto incluye:
+
 - **`.nvmrc`**: Especifica Node.js 20.18.0
 - **`netlify.toml`**: Configuración automática para Netlify
 - **`package.json`**: Engines especificados para compatibilidad
