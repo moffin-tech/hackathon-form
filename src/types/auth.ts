@@ -54,7 +54,7 @@ export interface FormSection {
   title: string;
   description?: string;
   fields: FormField[];
-  order: number;
+  order?: number;
   conditional?: {
     dependsOn: string;
     showWhen: string | string[];
@@ -95,7 +95,7 @@ export interface FormField {
     apiEndpoint?: string;
     fieldMapping?: Record<string, string>;
   };
-  order: number;
+  order?: number;
 }
 
 export interface FormSettings {
