@@ -1,9 +1,8 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { FormTemplate, FormSection, FormField } from "@/types/auth";
+import { FormTemplate } from "@/types/auth";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import {
@@ -15,10 +14,19 @@ import {
 } from "@/components/ui/Card";
 import toast from "react-hot-toast";
 import { FormBuilder } from "@/components/form-builder/FormBuilder";
+import { useAppSelector, useAppDispatch } from "@/redux/hooks";
+import { fetchGetUser } from "@/redux/features/authenticationSlice";
+import { RootState } from "@/redux/store";
 
 export default function NewFormPage() {
-  const { data: session, status } = useSession();
   const router = useRouter();
+  const dispatch = useAppDispatch();
+  const {
+    user,
+    organization,
+    isLoading: authLoading,
+    error: authError,
+  } = useAppSelector((store: RootState) => store.authentication);
   const [formData, setFormData] = useState<Partial<FormTemplate>>({
     title: "",
     description: "",
@@ -42,16 +50,25 @@ export default function NewFormPage() {
 
   // Authentication protection
   useEffect(() => {
-    if (status === "loading") return; // Still loading
-    
-    if (!session) {
+    const token = localStorage.getItem("accessToken");
+    if (!token) {
       router.push("/admin/login");
       return;
     }
-  }, [session, status, router]);
+    if (!user && token) {
+      dispatch(fetchGetUser());
+    }
+  }, [dispatch, router, user]);
+
+  useEffect(() => {
+    if (authError && !authLoading) {
+      localStorage.removeItem("accessToken");
+      router.push("/admin/login");
+    }
+  }, [authError, authLoading, router]);
 
   // Show loading while checking authentication
-  if (status === "loading") {
+  if (authLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
         <div className="text-center">
@@ -63,7 +80,7 @@ export default function NewFormPage() {
   }
 
   // Don't render if not authenticated
-  if (!session) {
+  if (!user || authError) {
     return null;
   }
 
@@ -80,21 +97,23 @@ export default function NewFormPage() {
     setIsSaving(true);
 
     try {
+      const token = localStorage.getItem("accessToken");
       const response = await fetch("/api/forms", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
           ...formData,
-          createdBy: session?.user?.id,
+          createdBy: user?.id,
         }),
       });
 
       if (response.ok) {
         const newForm = await response.json();
         toast.success("Formulario guardado exitosamente");
-        router.push(`/admin/forms/${newForm._id}/edit`);
+        router.push("/admin/dashboard");
       } else {
         const error = await response.json();
         toast.error(error.message || "Error al guardar formulario");
